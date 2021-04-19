@@ -1,0 +1,22 @@
+version: "3.7"
+services:
+  envoy:
+    image: envoyproxy/envoy-dev:d4e28efb56a79703faffc18d6af1a578770af2f1
+    ports:
+      - 8080:8080
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    links:
+      - node-server
+  node-server:
+    build:
+      context: ./api
+      target: development
+    volumes:
+      - ./api:/usr/src/app
+    ports:
+      - 9090:9090
+      - 9229:9229
+    command: npm run start:dev
+    env_file:
+      - .env
