@@ -1,0 +1,15 @@
+{
+  "name": "firebase",
+  "version": "1.0.0",
+  "description": "Firebase tools for framesystem development",
+  "main": "index.js",
+  "scripts": {
+    "seed": "env FIRESTORE_EMULATOR_HOST=localhost:8081 env FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 ts-node src/seed.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^9.6.0",
+    "ts-node": "^9.1.1"
+  }
+}

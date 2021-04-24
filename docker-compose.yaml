@@ -7,15 +7,16 @@ services:
     volumes:
       - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
     links:
-      - node-server
-  node-server:
+      - api
+  api:
     build:
       context: ./api
       target: development
     volumes:
       - ./api:/usr/src/app
+    expose:
+      - 9090
     ports:
-      - 9090:9090
       - 9229:9229
     command: npm run start:dev
     env_file:
@@ -32,11 +33,15 @@ services:
       - .env
     environment:
       - CHOKIDAR_USEPOLLING=true
+    links:
+      - envoy
+      - firebase
   firebase:
     build:
       context: ./firebase
     ports:
       - 4000:4000
+      - 4500:4500
       - 9099:9099
       - 8081:8081
       - 9000:9000
