@@ -7,7 +7,8 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "proto:generate": "cp ../proto/*.proto ./src/proto && protoc --plugin=protoc-gen-ng=node_modules/@ngx-grpc/protoc-gen-ng --ng_out=./src/proto -I ./src/proto ./src/service.proto"
   },
   "private": true,
   "dependencies": {
@@ -19,6 +20,13 @@
     "@angular/platform-browser": "~11.2.10",
     "@angular/platform-browser-dynamic": "~11.2.10",
     "@angular/router": "~11.2.10",
+    "@ngx-grpc/common": "^2.1.0",
+    "@ngx-grpc/core": "^2.1.0",
+    "@ngx-grpc/grpc-web-client": "^2.1.0",
+    "@ngx-grpc/improbable-eng-grpc-web-client": "^2.1.0",
+    "@ngx-grpc/well-known-types": "^2.1.0",
+    "google-protobuf": "^3.15.8",
+    "grpc-web": "^1.2.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"
@@ -27,6 +35,8 @@
     "@angular-devkit/build-angular": "~0.1102.9",
     "@angular/cli": "~11.2.9",
     "@angular/compiler-cli": "~11.2.10",
+    "@ngx-grpc/protoc-gen-ng": "^2.1.0",
+    "@types/google-protobuf": "^3.15.1",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
