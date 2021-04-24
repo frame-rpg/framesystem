@@ -28,6 +28,8 @@ services:
       - /app/node_modules
     ports:
       - 4200:4200
+    env_file:
+      - .env
     environment:
       - CHOKIDAR_USEPOLLING=true
   firebase:
