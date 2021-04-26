@@ -5,6 +5,10 @@ import { CommonModule } from '@angular/common';
 import { FIREBASE_OPTIONS } from '@angular/fire';
 import { NgModule } from '@angular/core';
 import { SETTINGS } from '@angular/fire/firestore';
+import { USE_EMULATOR as USE_AUTH_EMULATOR } from '@angular/fire/auth';
+import { USE_EMULATOR as USE_DATABASE_EMULATOR } from '@angular/fire/database';
+import { USE_EMULATOR as USE_FIRESTORE_EMULATOR } from '@angular/fire/firestore';
+import { USE_EMULATOR as USE_FUNCTIONS_EMULATOR } from '@angular/fire/functions';
 import { environment } from '../../environments/environment';
 
 @NgModule({
@@ -40,6 +44,22 @@ import { environment } from '../../environments/environment';
             messagingSenderId: '416504723616',
             appId: '1:416504723616:web:0c298ee9c4ca1102b631c5'
           }
+    },
+    {
+      provide: USE_AUTH_EMULATOR,
+      useValue: environment.useEmulators ? ['localhost', 9099] : undefined
+    },
+    {
+      provide: USE_DATABASE_EMULATOR,
+      useValue: environment.useEmulators ? ['localhost', 9000] : undefined
+    },
+    {
+      provide: USE_FIRESTORE_EMULATOR,
+      useValue: environment.useEmulators ? ['localhost', 8081] : undefined
+    },
+    {
+      provide: USE_FUNCTIONS_EMULATOR,
+      useValue: environment.useEmulators ? ['localhost', 5001] : undefined
     }
   ],
   imports: [

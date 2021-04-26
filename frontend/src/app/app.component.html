@@ -3,3 +3,4 @@
     <li *ngFor="let campaign of (campaigns | async)?.campaignId">{{campaign.id}}/{{campaign.name}}</li>
   </ul>
 </div>
+<router-outlet></router-outlet>
