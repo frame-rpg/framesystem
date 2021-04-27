@@ -1,12 +1,15 @@
 import { RouterModule, Routes } from '@angular/router';
 
-import { LoginComponent } from './pages/login/login.component';
 import { NgModule } from '@angular/core';
+import { SelfComponent } from './pages/profile/self/self.component';
 
 const routes: Routes = [
   {
-    path: 'login',
-    component: LoginComponent
+    path: 'me',
+    component: SelfComponent,
+    data: {
+      requiresLogin: true
+    }
   }
 ];
 

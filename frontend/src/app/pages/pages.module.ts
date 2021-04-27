@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { LoginModule } from './login/login.module';
 import { NgModule } from '@angular/core';
+import { ProfileModule } from './profile/profile.module';
 
 @NgModule({
-  exports: [LoginModule],
-  imports: [CommonModule]
+  imports: [CommonModule, ProfileModule],
+  exports: [ProfileModule]
 })
 export class PagesModule {}

@@ -1,4 +1,4 @@
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   AfterViewInit,
   Component,
@@ -6,8 +6,8 @@ import {
   Optional,
   ViewChild
 } from '@angular/core';
-import { BehaviorSubject, Subject, combineLatest } from 'rxjs';
-import { filter, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 
 import { AngularFireAuth } from '@angular/fire/auth';
 import { FirebaseuiAngularLibraryComponent } from 'firebaseui-angular';
@@ -28,7 +28,6 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     public auth: AngularFireAuth,
     private snackBar: MatSnackBar,
     private router: Router,
-    private route: ActivatedRoute,
     @Optional() public matDialogRef: MatDialogRef<LoginComponent>
   ) {}
 

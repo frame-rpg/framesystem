@@ -1,14 +1,19 @@
 import { FirebaseUIModule, firebase, firebaseui } from 'firebaseui-angular';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { FirebaseModule } from './config/firebase.module';
+import { FramesystemCommonModule } from './common/common.module';
 import { GrpcCoreModule } from '@ngx-grpc/core';
 import { ImprobableEngGrpcWebClientModule } from '@ngx-grpc/improbable-eng-grpc-web-client';
+import { LayoutModule } from '@angular/cdk/layout';
+import { MatDialogModule } from '@angular/material/dialog';
 import { NgModule } from '@angular/core';
 import { PagesModule } from './pages/pages.module';
+import { RouterModule } from '@angular/router';
 import { grpc } from '@improbable-eng/grpc-web';
 
 const firebaseUiAuthConfig: any = {
@@ -41,9 +46,15 @@ const firebaseUiAuthConfig: any = {
     }),
     AppRoutingModule,
     PagesModule,
+    FormsModule,
+    ReactiveFormsModule,
+    LayoutModule,
+    RouterModule,
     FirebaseModule,
     FirebaseUIModule.forRoot(firebaseUiAuthConfig),
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    FramesystemCommonModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]
