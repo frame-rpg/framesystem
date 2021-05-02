@@ -1,0 +1,11 @@
+syntax = "proto3";
+package framesystem;
+
+import "acl.proto";
+
+message Campaign {
+  string id = 1;
+  Acl acl = 2;
+  string name = 3;
+  string description = 4;
+}

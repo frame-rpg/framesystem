@@ -1,0 +1,8 @@
+syntax = "proto3";
+package framesystem;
+
+message Acl {
+  repeated string authors = 1;
+  repeated string collaborators = 2;
+  repeated string visitors = 3;
+}
