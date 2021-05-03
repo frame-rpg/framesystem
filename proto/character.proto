@@ -1,0 +1,69 @@
+syntax = "proto3";
+package framesystem;
+
+import "attribute.proto";
+import "acl.proto";
+import "skill.proto";
+
+message PlayerCharacter {
+  string id = 1;
+  Acl acl = 2;
+  string name = 3;
+  string description = 4;
+  Attribute might = 5;
+  Attribute speed = 6;
+  Attribute conviction = 7;
+  Attribute focus = 8;
+  Attribute health = 9;
+  PlayerStatus status = 10;
+  repeated Skill skills = 11;
+}
+
+message PlayerStatus {
+  AttributeStatus might = 1;
+  AttributeStatus speed = 2;
+  AttributeStatus conviction = 3;
+  AttributeStatus focus = 4;
+  AttributeStatus health = 5;
+  int32 initiative = 6;
+}
+
+message NonplayerCharacter {
+  string id = 1;
+  Acl acl = 2;
+  string name = 3;
+  string description = 4;
+  int32 attack = 5;
+  int32 defend = 6;
+  int32 health = 6;
+  int32 armor = 7;
+  int32 initiative = 8;
+}
+
+message NonplayerStatus {
+  int32 initiative = 3;
+  int32 health = 2;
+}
+
+message Companion {
+  string id = 1;
+  Acl acl = 2;
+  string name = 3;
+  string description = 4;
+  Attribute loyalty = 5;
+  Attribute health = 6;
+  int32 attack = 7;
+  int32 defend = 8;
+  int32 initiative = 9;
+  int32 armor = 10;
+  CompanionStatus status = 11;
+  repeated Skill skills = 12;
+}
+
+message CompanionStatus {
+  AttributeStatus loyalty = 1;
+  AttributeStatus health = 2;
+  int32 initiative = 3;
+}
+
+

@@ -2,13 +2,10 @@ syntax = "proto3";
 package framesystem;
 
 import "acl.proto";
-import "skill.proto";
 
 message Campaign {
   string id = 1;
   Acl acl = 2;
   string name = 3;
   string description = 4;
-  repeated Skill basic_skills = 5;
 }
-

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package framesystem;
+
+message Attribute {
+  string name = 2;
+  string description = 3;
+  int32 pool = 4;
+  int32 edge = 5;
+}
+
+message AttributeStatus {
+  int32 current = 1;
+  int32 wound = 2;
+}
