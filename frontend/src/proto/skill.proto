@@ -1,0 +1,23 @@
+syntax = "proto3";
+package framesystem;
+
+import "attribute.proto";
+
+enum Level {
+  UNKNOWN = 0;
+  INEPT = 1;
+  UNSKILLED = 2;
+  PROFICIENT = 3;
+  TRAINED = 4;
+  EXPERT = 5;
+}
+
+message Skill {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated string attributes = 4;
+  string type = 5;
+  string category = 6;
+  repeated string tag = 7;
+}

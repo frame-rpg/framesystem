@@ -1,16 +1,44 @@
 syntax = "proto3";
 package framesystem;
 service FramesystemService {
+  rpc CreateCampaign(CreateCampaignRequest) returns (CreateCampaignResponse) {}
+  rpc ReadCampaign(ReadCampaignRequest) returns (stream ReadCampaignResponse) {}
+  rpc UpdateCampaign(UpdateCampaignRequest) returns (UpdateCampaignResponse) {}
+  rpc DeleteCampaign(DeleteCampaignRequest) returns (DeleteCampaignResponse) {}
   rpc ListCampaigns(ListCampaignsRequest) returns (ListCampaignsResponse) {}
-}
 
-message ListCampaignsRequest {}
-
-message ListCampaignsResponse {
-  repeated CampaignId campaign_id = 1;
+  rpc CreateCharacter(CreateCharacterRequest) returns (CreateCharacterResponse) {}
+  rpc ReadCharacter(ReadCharacterRequest) returns (stream ReadCharacterResponse) {}
+  rpc UpdateCharacter(UpdateCharacterRequest) returns (UpdateCharacterResponse) {}
+  rpc DeleteCharacter(DeleteCharacterRequest) returns (DeleteCharacterResponse) {}
+  rpc ListCharacters(ListCharactersRequest) returns (ListCharactersResponse) {}
 }
 
 message CampaignId {
   string id = 1;
   string name = 2;
 }
+
+message CreateCampaignRequest {}
+message CreateCampaignResponse {}
+message ReadCampaignRequest {}
+message ReadCampaignResponse {}
+message UpdateCampaignRequest {}
+message UpdateCampaignResponse {}
+message DeleteCampaignRequest {}
+message DeleteCampaignResponse {}
+message ListCampaignsRequest {}
+message ListCampaignsResponse {
+  repeated CampaignId campaign_id = 1;
+}
+
+message CreateCharacterRequest {}
+message CreateCharacterResponse {}
+message ReadCharacterRequest {}
+message ReadCharacterResponse {}
+message UpdateCharacterRequest {}
+message UpdateCharacterResponse {}
+message DeleteCharacterRequest {}
+message DeleteCharacterResponse {}
+message ListCharactersRequest {}
+message ListCharactersResponse {}

@@ -2,6 +2,7 @@
 import { util, configure, Writer, Reader } from 'protobufjs/minimal';
 import * as Long from 'long';
 import { Acl } from './acl';
+import { Skill } from './skill';
 
 export const protobufPackage = 'framesystem';
 
@@ -10,6 +11,7 @@ export interface Campaign {
   acl: Acl | undefined;
   name: string;
   description: string;
+  basicSkills: Skill[];
 }
 
 const baseCampaign: object = { id: '', name: '', description: '' };
@@ -28,6 +30,9 @@ export const Campaign = {
     if (message.description !== '') {
       writer.uint32(34).string(message.description);
     }
+    for (const v of message.basicSkills) {
+      Skill.encode(v!, writer.uint32(42).fork()).ldelim();
+    }
     return writer;
   },
 
@@ -35,6 +40,7 @@ export const Campaign = {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseCampaign } as Campaign;
+    message.basicSkills = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -50,6 +56,9 @@ export const Campaign = {
         case 4:
           message.description = reader.string();
           break;
+        case 5:
+          message.basicSkills.push(Skill.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -60,6 +69,7 @@ export const Campaign = {
 
   fromJSON(object: any): Campaign {
     const message = { ...baseCampaign } as Campaign;
+    message.basicSkills = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = String(object.id);
     } else {
@@ -80,6 +90,11 @@ export const Campaign = {
     } else {
       message.description = '';
     }
+    if (object.basicSkills !== undefined && object.basicSkills !== null) {
+      for (const e of object.basicSkills) {
+        message.basicSkills.push(Skill.fromJSON(e));
+      }
+    }
     return message;
   },
 
@@ -91,11 +106,19 @@ export const Campaign = {
     message.name !== undefined && (obj.name = message.name);
     message.description !== undefined &&
       (obj.description = message.description);
+    if (message.basicSkills) {
+      obj.basicSkills = message.basicSkills.map((e) =>
+        e ? Skill.toJSON(e) : undefined,
+      );
+    } else {
+      obj.basicSkills = [];
+    }
     return obj;
   },
 
   fromPartial(object: DeepPartial<Campaign>): Campaign {
     const message = { ...baseCampaign } as Campaign;
+    message.basicSkills = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -115,6 +138,11 @@ export const Campaign = {
       message.description = object.description;
     } else {
       message.description = '';
+    }
+    if (object.basicSkills !== undefined && object.basicSkills !== null) {
+      for (const e of object.basicSkills) {
+        message.basicSkills.push(Skill.fromPartial(e));
+      }
     }
     return message;
   },
