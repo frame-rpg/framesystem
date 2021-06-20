@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "proto:generate": "cp ../proto/*.proto ./src/proto && protoc --plugin=protoc-gen-ng=node_modules/@ngx-grpc/protoc-gen-ng/main.js --ng_out=./src/proto -I ./src/proto src/proto/service.proto"
+    "proto:generate": "cp ../proto/*.proto ./src/proto && protoc --plugin=protoc-gen-ng=node_modules/@ngx-grpc/protoc-gen-ng/main.js --ng_out=./src/proto -I ./src/proto src/proto/*.proto"
   },
   "private": true,
   "dependencies": {

@@ -9,6 +9,7 @@ message Campaign {
   Acl acl = 2;
   string name = 3;
   string description = 4;
-  repeated Skill basic_skills = 5;
+  map<string, Skill> skills = 5;
+  repeated string characters = 6;
 }
 

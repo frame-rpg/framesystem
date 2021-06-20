@@ -4,57 +4,107 @@ import * as Long from 'long';
 
 export const protobufPackage = 'framesystem';
 
-export enum Level {
-  UNKNOWN = 0,
-  INEPT = 1,
-  UNSKILLED = 2,
-  PROFICIENT = 3,
-  TRAINED = 4,
-  EXPERT = 5,
+export enum SkillLevel {
+  LEVEL_UNKNOWN = 0,
+  LEVEL_INEPT = 1,
+  LEVEL_UNSKILLED = 2,
+  LEVEL_PROFICIENT = 3,
+  LEVEL_TRAINED = 4,
+  LEVEL_EXPERT = 5,
   UNRECOGNIZED = -1,
 }
 
-export function levelFromJSON(object: any): Level {
+export function skillLevelFromJSON(object: any): SkillLevel {
   switch (object) {
     case 0:
-    case 'UNKNOWN':
-      return Level.UNKNOWN;
+    case 'LEVEL_UNKNOWN':
+      return SkillLevel.LEVEL_UNKNOWN;
     case 1:
-    case 'INEPT':
-      return Level.INEPT;
+    case 'LEVEL_INEPT':
+      return SkillLevel.LEVEL_INEPT;
     case 2:
-    case 'UNSKILLED':
-      return Level.UNSKILLED;
+    case 'LEVEL_UNSKILLED':
+      return SkillLevel.LEVEL_UNSKILLED;
     case 3:
-    case 'PROFICIENT':
-      return Level.PROFICIENT;
+    case 'LEVEL_PROFICIENT':
+      return SkillLevel.LEVEL_PROFICIENT;
     case 4:
-    case 'TRAINED':
-      return Level.TRAINED;
+    case 'LEVEL_TRAINED':
+      return SkillLevel.LEVEL_TRAINED;
     case 5:
-    case 'EXPERT':
-      return Level.EXPERT;
+    case 'LEVEL_EXPERT':
+      return SkillLevel.LEVEL_EXPERT;
     case -1:
     case 'UNRECOGNIZED':
     default:
-      return Level.UNRECOGNIZED;
+      return SkillLevel.UNRECOGNIZED;
   }
 }
 
-export function levelToJSON(object: Level): string {
+export function skillLevelToJSON(object: SkillLevel): string {
   switch (object) {
-    case Level.UNKNOWN:
+    case SkillLevel.LEVEL_UNKNOWN:
+      return 'LEVEL_UNKNOWN';
+    case SkillLevel.LEVEL_INEPT:
+      return 'LEVEL_INEPT';
+    case SkillLevel.LEVEL_UNSKILLED:
+      return 'LEVEL_UNSKILLED';
+    case SkillLevel.LEVEL_PROFICIENT:
+      return 'LEVEL_PROFICIENT';
+    case SkillLevel.LEVEL_TRAINED:
+      return 'LEVEL_TRAINED';
+    case SkillLevel.LEVEL_EXPERT:
+      return 'LEVEL_EXPERT';
+    default:
       return 'UNKNOWN';
-    case Level.INEPT:
-      return 'INEPT';
-    case Level.UNSKILLED:
-      return 'UNSKILLED';
-    case Level.PROFICIENT:
-      return 'PROFICIENT';
-    case Level.TRAINED:
-      return 'TRAINED';
-    case Level.EXPERT:
-      return 'EXPERT';
+  }
+}
+
+export enum SkillType {
+  SKILLTYPE_UNKNOWN = 0,
+  SKILLTYPE_DEFENSE = 1,
+  SKILLTYPE_ATTACK = 2,
+  SKILLTYPE_INITIATIVE = 3,
+  SKILLTYPE_NONCOMBAT = 4,
+  UNRECOGNIZED = -1,
+}
+
+export function skillTypeFromJSON(object: any): SkillType {
+  switch (object) {
+    case 0:
+    case 'SKILLTYPE_UNKNOWN':
+      return SkillType.SKILLTYPE_UNKNOWN;
+    case 1:
+    case 'SKILLTYPE_DEFENSE':
+      return SkillType.SKILLTYPE_DEFENSE;
+    case 2:
+    case 'SKILLTYPE_ATTACK':
+      return SkillType.SKILLTYPE_ATTACK;
+    case 3:
+    case 'SKILLTYPE_INITIATIVE':
+      return SkillType.SKILLTYPE_INITIATIVE;
+    case 4:
+    case 'SKILLTYPE_NONCOMBAT':
+      return SkillType.SKILLTYPE_NONCOMBAT;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return SkillType.UNRECOGNIZED;
+  }
+}
+
+export function skillTypeToJSON(object: SkillType): string {
+  switch (object) {
+    case SkillType.SKILLTYPE_UNKNOWN:
+      return 'SKILLTYPE_UNKNOWN';
+    case SkillType.SKILLTYPE_DEFENSE:
+      return 'SKILLTYPE_DEFENSE';
+    case SkillType.SKILLTYPE_ATTACK:
+      return 'SKILLTYPE_ATTACK';
+    case SkillType.SKILLTYPE_INITIATIVE:
+      return 'SKILLTYPE_INITIATIVE';
+    case SkillType.SKILLTYPE_NONCOMBAT:
+      return 'SKILLTYPE_NONCOMBAT';
     default:
       return 'UNKNOWN';
   }
@@ -64,20 +114,20 @@ export interface Skill {
   id: string;
   name: string;
   description: string;
-  attributes: string[];
-  type: string;
+  type: SkillType;
   category: string;
   tag: string[];
+  attributes: string[];
 }
 
 const baseSkill: object = {
   id: '',
   name: '',
   description: '',
-  attributes: '',
-  type: '',
+  type: 0,
   category: '',
   tag: '',
+  attributes: '',
 };
 
 export const Skill = {
@@ -91,16 +141,16 @@ export const Skill = {
     if (message.description !== '') {
       writer.uint32(26).string(message.description);
     }
-    for (const v of message.attributes) {
-      writer.uint32(34).string(v!);
-    }
-    if (message.type !== '') {
-      writer.uint32(42).string(message.type);
+    if (message.type !== 0) {
+      writer.uint32(32).int32(message.type);
     }
     if (message.category !== '') {
-      writer.uint32(50).string(message.category);
+      writer.uint32(42).string(message.category);
     }
     for (const v of message.tag) {
+      writer.uint32(50).string(v!);
+    }
+    for (const v of message.attributes) {
       writer.uint32(58).string(v!);
     }
     return writer;
@@ -110,8 +160,8 @@ export const Skill = {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseSkill } as Skill;
-    message.attributes = [];
     message.tag = [];
+    message.attributes = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -125,16 +175,16 @@ export const Skill = {
           message.description = reader.string();
           break;
         case 4:
-          message.attributes.push(reader.string());
+          message.type = reader.int32() as any;
           break;
         case 5:
-          message.type = reader.string();
-          break;
-        case 6:
           message.category = reader.string();
           break;
-        case 7:
+        case 6:
           message.tag.push(reader.string());
+          break;
+        case 7:
+          message.attributes.push(reader.string());
           break;
         default:
           reader.skipType(tag & 7);
@@ -146,8 +196,8 @@ export const Skill = {
 
   fromJSON(object: any): Skill {
     const message = { ...baseSkill } as Skill;
-    message.attributes = [];
     message.tag = [];
+    message.attributes = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = String(object.id);
     } else {
@@ -163,15 +213,10 @@ export const Skill = {
     } else {
       message.description = '';
     }
-    if (object.attributes !== undefined && object.attributes !== null) {
-      for (const e of object.attributes) {
-        message.attributes.push(String(e));
-      }
-    }
     if (object.type !== undefined && object.type !== null) {
-      message.type = String(object.type);
+      message.type = skillTypeFromJSON(object.type);
     } else {
-      message.type = '';
+      message.type = 0;
     }
     if (object.category !== undefined && object.category !== null) {
       message.category = String(object.category);
@@ -183,6 +228,11 @@ export const Skill = {
         message.tag.push(String(e));
       }
     }
+    if (object.attributes !== undefined && object.attributes !== null) {
+      for (const e of object.attributes) {
+        message.attributes.push(String(e));
+      }
+    }
     return message;
   },
 
@@ -192,25 +242,25 @@ export const Skill = {
     message.name !== undefined && (obj.name = message.name);
     message.description !== undefined &&
       (obj.description = message.description);
-    if (message.attributes) {
-      obj.attributes = message.attributes.map((e) => e);
-    } else {
-      obj.attributes = [];
-    }
-    message.type !== undefined && (obj.type = message.type);
+    message.type !== undefined && (obj.type = skillTypeToJSON(message.type));
     message.category !== undefined && (obj.category = message.category);
     if (message.tag) {
       obj.tag = message.tag.map((e) => e);
     } else {
       obj.tag = [];
     }
+    if (message.attributes) {
+      obj.attributes = message.attributes.map((e) => e);
+    } else {
+      obj.attributes = [];
+    }
     return obj;
   },
 
   fromPartial(object: DeepPartial<Skill>): Skill {
     const message = { ...baseSkill } as Skill;
-    message.attributes = [];
     message.tag = [];
+    message.attributes = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -226,15 +276,10 @@ export const Skill = {
     } else {
       message.description = '';
     }
-    if (object.attributes !== undefined && object.attributes !== null) {
-      for (const e of object.attributes) {
-        message.attributes.push(e);
-      }
-    }
     if (object.type !== undefined && object.type !== null) {
       message.type = object.type;
     } else {
-      message.type = '';
+      message.type = 0;
     }
     if (object.category !== undefined && object.category !== null) {
       message.category = object.category;
@@ -244,6 +289,11 @@ export const Skill = {
     if (object.tag !== undefined && object.tag !== null) {
       for (const e of object.tag) {
         message.tag.push(e);
+      }
+    }
+    if (object.attributes !== undefined && object.attributes !== null) {
+      for (const e of object.attributes) {
+        message.attributes.push(e);
       }
     }
     return message;

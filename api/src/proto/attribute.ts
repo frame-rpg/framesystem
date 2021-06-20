@@ -5,21 +5,30 @@ import * as Long from 'long';
 export const protobufPackage = 'framesystem';
 
 export interface Attribute {
+  id: string;
   name: string;
   description: string;
   pool: number;
   edge: number;
-}
-
-export interface AttributeStatus {
   current: number;
-  wound: number;
+  wound: boolean;
 }
 
-const baseAttribute: object = { name: '', description: '', pool: 0, edge: 0 };
+const baseAttribute: object = {
+  id: '',
+  name: '',
+  description: '',
+  pool: 0,
+  edge: 0,
+  current: 0,
+  wound: false,
+};
 
 export const Attribute = {
   encode(message: Attribute, writer: Writer = Writer.create()): Writer {
+    if (message.id !== '') {
+      writer.uint32(10).string(message.id);
+    }
     if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
@@ -32,6 +41,12 @@ export const Attribute = {
     if (message.edge !== 0) {
       writer.uint32(40).int32(message.edge);
     }
+    if (message.current !== 0) {
+      writer.uint32(48).int32(message.current);
+    }
+    if (message.wound === true) {
+      writer.uint32(56).bool(message.wound);
+    }
     return writer;
   },
 
@@ -42,6 +57,9 @@ export const Attribute = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          message.id = reader.string();
+          break;
         case 2:
           message.name = reader.string();
           break;
@@ -54,6 +72,12 @@ export const Attribute = {
         case 5:
           message.edge = reader.int32();
           break;
+        case 6:
+          message.current = reader.int32();
+          break;
+        case 7:
+          message.wound = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -64,6 +88,11 @@ export const Attribute = {
 
   fromJSON(object: any): Attribute {
     const message = { ...baseAttribute } as Attribute;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = '';
+    }
     if (object.name !== undefined && object.name !== null) {
       message.name = String(object.name);
     } else {
@@ -84,21 +113,39 @@ export const Attribute = {
     } else {
       message.edge = 0;
     }
+    if (object.current !== undefined && object.current !== null) {
+      message.current = Number(object.current);
+    } else {
+      message.current = 0;
+    }
+    if (object.wound !== undefined && object.wound !== null) {
+      message.wound = Boolean(object.wound);
+    } else {
+      message.wound = false;
+    }
     return message;
   },
 
   toJSON(message: Attribute): unknown {
     const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
     message.name !== undefined && (obj.name = message.name);
     message.description !== undefined &&
       (obj.description = message.description);
     message.pool !== undefined && (obj.pool = message.pool);
     message.edge !== undefined && (obj.edge = message.edge);
+    message.current !== undefined && (obj.current = message.current);
+    message.wound !== undefined && (obj.wound = message.wound);
     return obj;
   },
 
   fromPartial(object: DeepPartial<Attribute>): Attribute {
     const message = { ...baseAttribute } as Attribute;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = '';
+    }
     if (object.name !== undefined && object.name !== null) {
       message.name = object.name;
     } else {
@@ -119,68 +166,6 @@ export const Attribute = {
     } else {
       message.edge = 0;
     }
-    return message;
-  },
-};
-
-const baseAttributeStatus: object = { current: 0, wound: 0 };
-
-export const AttributeStatus = {
-  encode(message: AttributeStatus, writer: Writer = Writer.create()): Writer {
-    if (message.current !== 0) {
-      writer.uint32(8).int32(message.current);
-    }
-    if (message.wound !== 0) {
-      writer.uint32(16).int32(message.wound);
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): AttributeStatus {
-    const reader = input instanceof Reader ? input : new Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseAttributeStatus } as AttributeStatus;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.current = reader.int32();
-          break;
-        case 2:
-          message.wound = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): AttributeStatus {
-    const message = { ...baseAttributeStatus } as AttributeStatus;
-    if (object.current !== undefined && object.current !== null) {
-      message.current = Number(object.current);
-    } else {
-      message.current = 0;
-    }
-    if (object.wound !== undefined && object.wound !== null) {
-      message.wound = Number(object.wound);
-    } else {
-      message.wound = 0;
-    }
-    return message;
-  },
-
-  toJSON(message: AttributeStatus): unknown {
-    const obj: any = {};
-    message.current !== undefined && (obj.current = message.current);
-    message.wound !== undefined && (obj.wound = message.wound);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<AttributeStatus>): AttributeStatus {
-    const message = { ...baseAttributeStatus } as AttributeStatus;
     if (object.current !== undefined && object.current !== null) {
       message.current = object.current;
     } else {
@@ -189,7 +174,7 @@ export const AttributeStatus = {
     if (object.wound !== undefined && object.wound !== null) {
       message.wound = object.wound;
     } else {
-      message.wound = 0;
+      message.wound = false;
     }
     return message;
   },

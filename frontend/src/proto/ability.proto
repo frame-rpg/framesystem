@@ -10,12 +10,12 @@ message WoundCost {}
 
 message Cost {
   enum CostType {
-    UNKNOWN = 0;
-    POOL = 1;
-    INITIATIVE = 2;
-    DAMAGE = 3;
-    DEPLETION = 4;
-    WOUND = 5;
+    COST_UNKNOWN = 0;
+    COST_POOL = 1;
+    COST_INITIATIVE = 2;
+    COST_DAMAGE = 3;
+    COST_DEPLETION = 4;
+    COST_WOUND = 5;
   }
   oneof cost {
     PoolCost pool = 1;

@@ -24,35 +24,35 @@ export interface Cost {
 }
 
 export enum Cost_CostType {
-  UNKNOWN = 0,
-  POOL = 1,
-  INITIATIVE = 2,
-  DAMAGE = 3,
-  DEPLETION = 4,
-  WOUND = 5,
+  COST_UNKNOWN = 0,
+  COST_POOL = 1,
+  COST_INITIATIVE = 2,
+  COST_DAMAGE = 3,
+  COST_DEPLETION = 4,
+  COST_WOUND = 5,
   UNRECOGNIZED = -1,
 }
 
 export function cost_CostTypeFromJSON(object: any): Cost_CostType {
   switch (object) {
     case 0:
-    case 'UNKNOWN':
-      return Cost_CostType.UNKNOWN;
+    case 'COST_UNKNOWN':
+      return Cost_CostType.COST_UNKNOWN;
     case 1:
-    case 'POOL':
-      return Cost_CostType.POOL;
+    case 'COST_POOL':
+      return Cost_CostType.COST_POOL;
     case 2:
-    case 'INITIATIVE':
-      return Cost_CostType.INITIATIVE;
+    case 'COST_INITIATIVE':
+      return Cost_CostType.COST_INITIATIVE;
     case 3:
-    case 'DAMAGE':
-      return Cost_CostType.DAMAGE;
+    case 'COST_DAMAGE':
+      return Cost_CostType.COST_DAMAGE;
     case 4:
-    case 'DEPLETION':
-      return Cost_CostType.DEPLETION;
+    case 'COST_DEPLETION':
+      return Cost_CostType.COST_DEPLETION;
     case 5:
-    case 'WOUND':
-      return Cost_CostType.WOUND;
+    case 'COST_WOUND':
+      return Cost_CostType.COST_WOUND;
     case -1:
     case 'UNRECOGNIZED':
     default:
@@ -62,18 +62,18 @@ export function cost_CostTypeFromJSON(object: any): Cost_CostType {
 
 export function cost_CostTypeToJSON(object: Cost_CostType): string {
   switch (object) {
-    case Cost_CostType.UNKNOWN:
-      return 'UNKNOWN';
-    case Cost_CostType.POOL:
-      return 'POOL';
-    case Cost_CostType.INITIATIVE:
-      return 'INITIATIVE';
-    case Cost_CostType.DAMAGE:
-      return 'DAMAGE';
-    case Cost_CostType.DEPLETION:
-      return 'DEPLETION';
-    case Cost_CostType.WOUND:
-      return 'WOUND';
+    case Cost_CostType.COST_UNKNOWN:
+      return 'COST_UNKNOWN';
+    case Cost_CostType.COST_POOL:
+      return 'COST_POOL';
+    case Cost_CostType.COST_INITIATIVE:
+      return 'COST_INITIATIVE';
+    case Cost_CostType.COST_DAMAGE:
+      return 'COST_DAMAGE';
+    case Cost_CostType.COST_DEPLETION:
+      return 'COST_DEPLETION';
+    case Cost_CostType.COST_WOUND:
+      return 'COST_WOUND';
     default:
       return 'UNKNOWN';
   }

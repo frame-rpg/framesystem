@@ -1,82 +1,87 @@
 /* eslint-disable */
 import { util, configure, Writer, Reader } from 'protobufjs/minimal';
 import * as Long from 'long';
+import { SkillLevel, skillLevelToJSON, skillLevelFromJSON } from './skill';
 import { Acl } from './acl';
-import { Attribute, AttributeStatus } from './attribute';
-import { Skill } from './skill';
+import { Attribute } from './attribute';
+import { Ability } from './ability';
 
 export const protobufPackage = 'framesystem';
 
-export interface PlayerCharacter {
+export enum CharacterType {
+  CHARACTERTYPE_UNKNOWN = 0,
+  CHARACTERTYPE_PLAYER = 1,
+  CHARACTERTYPE_NONPLAYER = 2,
+  CHARACTERTYPE_COMPANION = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function characterTypeFromJSON(object: any): CharacterType {
+  switch (object) {
+    case 0:
+    case 'CHARACTERTYPE_UNKNOWN':
+      return CharacterType.CHARACTERTYPE_UNKNOWN;
+    case 1:
+    case 'CHARACTERTYPE_PLAYER':
+      return CharacterType.CHARACTERTYPE_PLAYER;
+    case 2:
+    case 'CHARACTERTYPE_NONPLAYER':
+      return CharacterType.CHARACTERTYPE_NONPLAYER;
+    case 3:
+    case 'CHARACTERTYPE_COMPANION':
+      return CharacterType.CHARACTERTYPE_COMPANION;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return CharacterType.UNRECOGNIZED;
+  }
+}
+
+export function characterTypeToJSON(object: CharacterType): string {
+  switch (object) {
+    case CharacterType.CHARACTERTYPE_UNKNOWN:
+      return 'CHARACTERTYPE_UNKNOWN';
+    case CharacterType.CHARACTERTYPE_PLAYER:
+      return 'CHARACTERTYPE_PLAYER';
+    case CharacterType.CHARACTERTYPE_NONPLAYER:
+      return 'CHARACTERTYPE_NONPLAYER';
+    case CharacterType.CHARACTERTYPE_COMPANION:
+      return 'CHARACTERTYPE_COMPANION';
+    default:
+      return 'UNKNOWN';
+  }
+}
+
+export interface Character {
   id: string;
-  acl: Acl | undefined;
+  type: CharacterType;
   name: string;
   description: string;
-  might: Attribute | undefined;
-  speed: Attribute | undefined;
-  conviction: Attribute | undefined;
-  focus: Attribute | undefined;
-  health: Attribute | undefined;
-  status: PlayerStatus | undefined;
-  skills: Skill[];
-}
-
-export interface PlayerStatus {
-  might: AttributeStatus | undefined;
-  speed: AttributeStatus | undefined;
-  conviction: AttributeStatus | undefined;
-  focus: AttributeStatus | undefined;
-  health: AttributeStatus | undefined;
-  initiative: number;
-}
-
-export interface NonplayerCharacter {
-  id: string;
   acl: Acl | undefined;
-  name: string;
-  description: string;
-  attack: number;
-  defend: number;
-  health: number;
-  armor: number;
-  initiative: number;
+  attributes: { [key: string]: Attribute };
+  skills: { [key: string]: SkillLevel };
+  abilities: Ability[];
 }
 
-export interface NonplayerStatus {
-  initiative: number;
-  health: number;
+export interface Character_AttributesEntry {
+  key: string;
+  value: Attribute | undefined;
 }
 
-export interface Companion {
-  id: string;
-  acl: Acl | undefined;
-  name: string;
-  description: string;
-  loyalty: Attribute | undefined;
-  health: Attribute | undefined;
-  attack: number;
-  defend: number;
-  initiative: number;
-  armor: number;
-  status: CompanionStatus | undefined;
-  skills: Skill[];
+export interface Character_SkillsEntry {
+  key: string;
+  value: SkillLevel;
 }
 
-export interface CompanionStatus {
-  loyalty: AttributeStatus | undefined;
-  health: AttributeStatus | undefined;
-  initiative: number;
-}
+const baseCharacter: object = { id: '', type: 0, name: '', description: '' };
 
-const basePlayerCharacter: object = { id: '', name: '', description: '' };
-
-export const PlayerCharacter = {
-  encode(message: PlayerCharacter, writer: Writer = Writer.create()): Writer {
+export const Character = {
+  encode(message: Character, writer: Writer = Writer.create()): Writer {
     if (message.id !== '') {
       writer.uint32(10).string(message.id);
     }
-    if (message.acl !== undefined) {
-      Acl.encode(message.acl, writer.uint32(18).fork()).ldelim();
+    if (message.type !== 0) {
+      writer.uint32(16).int32(message.type);
     }
     if (message.name !== '') {
       writer.uint32(26).string(message.name);
@@ -84,35 +89,34 @@ export const PlayerCharacter = {
     if (message.description !== '') {
       writer.uint32(34).string(message.description);
     }
-    if (message.might !== undefined) {
-      Attribute.encode(message.might, writer.uint32(42).fork()).ldelim();
+    if (message.acl !== undefined) {
+      Acl.encode(message.acl, writer.uint32(42).fork()).ldelim();
     }
-    if (message.speed !== undefined) {
-      Attribute.encode(message.speed, writer.uint32(50).fork()).ldelim();
-    }
-    if (message.conviction !== undefined) {
-      Attribute.encode(message.conviction, writer.uint32(58).fork()).ldelim();
-    }
-    if (message.focus !== undefined) {
-      Attribute.encode(message.focus, writer.uint32(66).fork()).ldelim();
-    }
-    if (message.health !== undefined) {
-      Attribute.encode(message.health, writer.uint32(74).fork()).ldelim();
-    }
-    if (message.status !== undefined) {
-      PlayerStatus.encode(message.status, writer.uint32(82).fork()).ldelim();
-    }
-    for (const v of message.skills) {
-      Skill.encode(v!, writer.uint32(90).fork()).ldelim();
+    Object.entries(message.attributes).forEach(([key, value]) => {
+      Character_AttributesEntry.encode(
+        { key: key as any, value },
+        writer.uint32(50).fork(),
+      ).ldelim();
+    });
+    Object.entries(message.skills).forEach(([key, value]) => {
+      Character_SkillsEntry.encode(
+        { key: key as any, value },
+        writer.uint32(58).fork(),
+      ).ldelim();
+    });
+    for (const v of message.abilities) {
+      Ability.encode(v!, writer.uint32(66).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(input: Reader | Uint8Array, length?: number): PlayerCharacter {
+  decode(input: Reader | Uint8Array, length?: number): Character {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePlayerCharacter } as PlayerCharacter;
-    message.skills = [];
+    const message = { ...baseCharacter } as Character;
+    message.attributes = {};
+    message.skills = {};
+    message.abilities = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -120,7 +124,7 @@ export const PlayerCharacter = {
           message.id = reader.string();
           break;
         case 2:
-          message.acl = Acl.decode(reader, reader.uint32());
+          message.type = reader.int32() as any;
           break;
         case 3:
           message.name = reader.string();
@@ -129,25 +133,25 @@ export const PlayerCharacter = {
           message.description = reader.string();
           break;
         case 5:
-          message.might = Attribute.decode(reader, reader.uint32());
+          message.acl = Acl.decode(reader, reader.uint32());
           break;
         case 6:
-          message.speed = Attribute.decode(reader, reader.uint32());
+          const entry6 = Character_AttributesEntry.decode(
+            reader,
+            reader.uint32(),
+          );
+          if (entry6.value !== undefined) {
+            message.attributes[entry6.key] = entry6.value;
+          }
           break;
         case 7:
-          message.conviction = Attribute.decode(reader, reader.uint32());
+          const entry7 = Character_SkillsEntry.decode(reader, reader.uint32());
+          if (entry7.value !== undefined) {
+            message.skills[entry7.key] = entry7.value;
+          }
           break;
         case 8:
-          message.focus = Attribute.decode(reader, reader.uint32());
-          break;
-        case 9:
-          message.health = Attribute.decode(reader, reader.uint32());
-          break;
-        case 10:
-          message.status = PlayerStatus.decode(reader, reader.uint32());
-          break;
-        case 11:
-          message.skills.push(Skill.decode(reader, reader.uint32()));
+          message.abilities.push(Ability.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -157,18 +161,20 @@ export const PlayerCharacter = {
     return message;
   },
 
-  fromJSON(object: any): PlayerCharacter {
-    const message = { ...basePlayerCharacter } as PlayerCharacter;
-    message.skills = [];
+  fromJSON(object: any): Character {
+    const message = { ...baseCharacter } as Character;
+    message.attributes = {};
+    message.skills = {};
+    message.abilities = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = String(object.id);
     } else {
       message.id = '';
     }
-    if (object.acl !== undefined && object.acl !== null) {
-      message.acl = Acl.fromJSON(object.acl);
+    if (object.type !== undefined && object.type !== null) {
+      message.type = characterTypeFromJSON(object.type);
     } else {
-      message.acl = undefined;
+      message.type = 0;
     }
     if (object.name !== undefined && object.name !== null) {
       message.name = String(object.name);
@@ -180,90 +186,75 @@ export const PlayerCharacter = {
     } else {
       message.description = '';
     }
-    if (object.might !== undefined && object.might !== null) {
-      message.might = Attribute.fromJSON(object.might);
+    if (object.acl !== undefined && object.acl !== null) {
+      message.acl = Acl.fromJSON(object.acl);
     } else {
-      message.might = undefined;
+      message.acl = undefined;
     }
-    if (object.speed !== undefined && object.speed !== null) {
-      message.speed = Attribute.fromJSON(object.speed);
-    } else {
-      message.speed = undefined;
-    }
-    if (object.conviction !== undefined && object.conviction !== null) {
-      message.conviction = Attribute.fromJSON(object.conviction);
-    } else {
-      message.conviction = undefined;
-    }
-    if (object.focus !== undefined && object.focus !== null) {
-      message.focus = Attribute.fromJSON(object.focus);
-    } else {
-      message.focus = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = Attribute.fromJSON(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.status !== undefined && object.status !== null) {
-      message.status = PlayerStatus.fromJSON(object.status);
-    } else {
-      message.status = undefined;
+    if (object.attributes !== undefined && object.attributes !== null) {
+      Object.entries(object.attributes).forEach(([key, value]) => {
+        message.attributes[key] = Attribute.fromJSON(value);
+      });
     }
     if (object.skills !== undefined && object.skills !== null) {
-      for (const e of object.skills) {
-        message.skills.push(Skill.fromJSON(e));
+      Object.entries(object.skills).forEach(([key, value]) => {
+        message.skills[key] = value as number;
+      });
+    }
+    if (object.abilities !== undefined && object.abilities !== null) {
+      for (const e of object.abilities) {
+        message.abilities.push(Ability.fromJSON(e));
       }
     }
     return message;
   },
 
-  toJSON(message: PlayerCharacter): unknown {
+  toJSON(message: Character): unknown {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
-    message.acl !== undefined &&
-      (obj.acl = message.acl ? Acl.toJSON(message.acl) : undefined);
+    message.type !== undefined &&
+      (obj.type = characterTypeToJSON(message.type));
     message.name !== undefined && (obj.name = message.name);
     message.description !== undefined &&
       (obj.description = message.description);
-    message.might !== undefined &&
-      (obj.might = message.might ? Attribute.toJSON(message.might) : undefined);
-    message.speed !== undefined &&
-      (obj.speed = message.speed ? Attribute.toJSON(message.speed) : undefined);
-    message.conviction !== undefined &&
-      (obj.conviction = message.conviction
-        ? Attribute.toJSON(message.conviction)
-        : undefined);
-    message.focus !== undefined &&
-      (obj.focus = message.focus ? Attribute.toJSON(message.focus) : undefined);
-    message.health !== undefined &&
-      (obj.health = message.health
-        ? Attribute.toJSON(message.health)
-        : undefined);
-    message.status !== undefined &&
-      (obj.status = message.status
-        ? PlayerStatus.toJSON(message.status)
-        : undefined);
+    message.acl !== undefined &&
+      (obj.acl = message.acl ? Acl.toJSON(message.acl) : undefined);
+    obj.attributes = {};
+    if (message.attributes) {
+      Object.entries(message.attributes).forEach(([k, v]) => {
+        obj.attributes[k] = Attribute.toJSON(v);
+      });
+    }
+    obj.skills = {};
     if (message.skills) {
-      obj.skills = message.skills.map((e) => (e ? Skill.toJSON(e) : undefined));
+      Object.entries(message.skills).forEach(([k, v]) => {
+        obj.skills[k] = skillLevelToJSON(v);
+      });
+    }
+    if (message.abilities) {
+      obj.abilities = message.abilities.map((e) =>
+        e ? Ability.toJSON(e) : undefined,
+      );
     } else {
-      obj.skills = [];
+      obj.abilities = [];
     }
     return obj;
   },
 
-  fromPartial(object: DeepPartial<PlayerCharacter>): PlayerCharacter {
-    const message = { ...basePlayerCharacter } as PlayerCharacter;
-    message.skills = [];
+  fromPartial(object: DeepPartial<Character>): Character {
+    const message = { ...baseCharacter } as Character;
+    message.attributes = {};
+    message.skills = {};
+    message.abilities = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
       message.id = '';
     }
-    if (object.acl !== undefined && object.acl !== null) {
-      message.acl = Acl.fromPartial(object.acl);
+    if (object.type !== undefined && object.type !== null) {
+      message.type = object.type;
     } else {
-      message.acl = undefined;
+      message.type = 0;
     }
     if (object.name !== undefined && object.name !== null) {
       message.name = object.name;
@@ -275,282 +266,67 @@ export const PlayerCharacter = {
     } else {
       message.description = '';
     }
-    if (object.might !== undefined && object.might !== null) {
-      message.might = Attribute.fromPartial(object.might);
+    if (object.acl !== undefined && object.acl !== null) {
+      message.acl = Acl.fromPartial(object.acl);
     } else {
-      message.might = undefined;
+      message.acl = undefined;
     }
-    if (object.speed !== undefined && object.speed !== null) {
-      message.speed = Attribute.fromPartial(object.speed);
-    } else {
-      message.speed = undefined;
-    }
-    if (object.conviction !== undefined && object.conviction !== null) {
-      message.conviction = Attribute.fromPartial(object.conviction);
-    } else {
-      message.conviction = undefined;
-    }
-    if (object.focus !== undefined && object.focus !== null) {
-      message.focus = Attribute.fromPartial(object.focus);
-    } else {
-      message.focus = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = Attribute.fromPartial(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.status !== undefined && object.status !== null) {
-      message.status = PlayerStatus.fromPartial(object.status);
-    } else {
-      message.status = undefined;
+    if (object.attributes !== undefined && object.attributes !== null) {
+      Object.entries(object.attributes).forEach(([key, value]) => {
+        if (value !== undefined) {
+          message.attributes[key] = Attribute.fromPartial(value);
+        }
+      });
     }
     if (object.skills !== undefined && object.skills !== null) {
-      for (const e of object.skills) {
-        message.skills.push(Skill.fromPartial(e));
+      Object.entries(object.skills).forEach(([key, value]) => {
+        if (value !== undefined) {
+          message.skills[key] = value as number;
+        }
+      });
+    }
+    if (object.abilities !== undefined && object.abilities !== null) {
+      for (const e of object.abilities) {
+        message.abilities.push(Ability.fromPartial(e));
       }
     }
     return message;
   },
 };
 
-const basePlayerStatus: object = { initiative: 0 };
+const baseCharacter_AttributesEntry: object = { key: '' };
 
-export const PlayerStatus = {
-  encode(message: PlayerStatus, writer: Writer = Writer.create()): Writer {
-    if (message.might !== undefined) {
-      AttributeStatus.encode(message.might, writer.uint32(10).fork()).ldelim();
-    }
-    if (message.speed !== undefined) {
-      AttributeStatus.encode(message.speed, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.conviction !== undefined) {
-      AttributeStatus.encode(
-        message.conviction,
-        writer.uint32(26).fork(),
-      ).ldelim();
-    }
-    if (message.focus !== undefined) {
-      AttributeStatus.encode(message.focus, writer.uint32(34).fork()).ldelim();
-    }
-    if (message.health !== undefined) {
-      AttributeStatus.encode(message.health, writer.uint32(42).fork()).ldelim();
-    }
-    if (message.initiative !== 0) {
-      writer.uint32(48).int32(message.initiative);
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): PlayerStatus {
-    const reader = input instanceof Reader ? input : new Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePlayerStatus } as PlayerStatus;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.might = AttributeStatus.decode(reader, reader.uint32());
-          break;
-        case 2:
-          message.speed = AttributeStatus.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.conviction = AttributeStatus.decode(reader, reader.uint32());
-          break;
-        case 4:
-          message.focus = AttributeStatus.decode(reader, reader.uint32());
-          break;
-        case 5:
-          message.health = AttributeStatus.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.initiative = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): PlayerStatus {
-    const message = { ...basePlayerStatus } as PlayerStatus;
-    if (object.might !== undefined && object.might !== null) {
-      message.might = AttributeStatus.fromJSON(object.might);
-    } else {
-      message.might = undefined;
-    }
-    if (object.speed !== undefined && object.speed !== null) {
-      message.speed = AttributeStatus.fromJSON(object.speed);
-    } else {
-      message.speed = undefined;
-    }
-    if (object.conviction !== undefined && object.conviction !== null) {
-      message.conviction = AttributeStatus.fromJSON(object.conviction);
-    } else {
-      message.conviction = undefined;
-    }
-    if (object.focus !== undefined && object.focus !== null) {
-      message.focus = AttributeStatus.fromJSON(object.focus);
-    } else {
-      message.focus = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = AttributeStatus.fromJSON(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = Number(object.initiative);
-    } else {
-      message.initiative = 0;
-    }
-    return message;
-  },
-
-  toJSON(message: PlayerStatus): unknown {
-    const obj: any = {};
-    message.might !== undefined &&
-      (obj.might = message.might
-        ? AttributeStatus.toJSON(message.might)
-        : undefined);
-    message.speed !== undefined &&
-      (obj.speed = message.speed
-        ? AttributeStatus.toJSON(message.speed)
-        : undefined);
-    message.conviction !== undefined &&
-      (obj.conviction = message.conviction
-        ? AttributeStatus.toJSON(message.conviction)
-        : undefined);
-    message.focus !== undefined &&
-      (obj.focus = message.focus
-        ? AttributeStatus.toJSON(message.focus)
-        : undefined);
-    message.health !== undefined &&
-      (obj.health = message.health
-        ? AttributeStatus.toJSON(message.health)
-        : undefined);
-    message.initiative !== undefined && (obj.initiative = message.initiative);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<PlayerStatus>): PlayerStatus {
-    const message = { ...basePlayerStatus } as PlayerStatus;
-    if (object.might !== undefined && object.might !== null) {
-      message.might = AttributeStatus.fromPartial(object.might);
-    } else {
-      message.might = undefined;
-    }
-    if (object.speed !== undefined && object.speed !== null) {
-      message.speed = AttributeStatus.fromPartial(object.speed);
-    } else {
-      message.speed = undefined;
-    }
-    if (object.conviction !== undefined && object.conviction !== null) {
-      message.conviction = AttributeStatus.fromPartial(object.conviction);
-    } else {
-      message.conviction = undefined;
-    }
-    if (object.focus !== undefined && object.focus !== null) {
-      message.focus = AttributeStatus.fromPartial(object.focus);
-    } else {
-      message.focus = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = AttributeStatus.fromPartial(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = object.initiative;
-    } else {
-      message.initiative = 0;
-    }
-    return message;
-  },
-};
-
-const baseNonplayerCharacter: object = {
-  id: '',
-  name: '',
-  description: '',
-  attack: 0,
-  defend: 0,
-  health: 0,
-  armor: 0,
-  initiative: 0,
-};
-
-export const NonplayerCharacter = {
+export const Character_AttributesEntry = {
   encode(
-    message: NonplayerCharacter,
+    message: Character_AttributesEntry,
     writer: Writer = Writer.create(),
   ): Writer {
-    if (message.id !== '') {
-      writer.uint32(10).string(message.id);
+    if (message.key !== '') {
+      writer.uint32(10).string(message.key);
     }
-    if (message.acl !== undefined) {
-      Acl.encode(message.acl, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.name !== '') {
-      writer.uint32(26).string(message.name);
-    }
-    if (message.description !== '') {
-      writer.uint32(34).string(message.description);
-    }
-    if (message.attack !== 0) {
-      writer.uint32(40).int32(message.attack);
-    }
-    if (message.defend !== 0) {
-      writer.uint32(48).int32(message.defend);
-    }
-    if (message.health !== 0) {
-      writer.uint32(56).int32(message.health);
-    }
-    if (message.armor !== 0) {
-      writer.uint32(64).int32(message.armor);
-    }
-    if (message.initiative !== 0) {
-      writer.uint32(72).int32(message.initiative);
+    if (message.value !== undefined) {
+      Attribute.encode(message.value, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
 
-  decode(input: Reader | Uint8Array, length?: number): NonplayerCharacter {
+  decode(
+    input: Reader | Uint8Array,
+    length?: number,
+  ): Character_AttributesEntry {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseNonplayerCharacter } as NonplayerCharacter;
+    const message = {
+      ...baseCharacter_AttributesEntry,
+    } as Character_AttributesEntry;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.id = reader.string();
+          message.key = reader.string();
           break;
         case 2:
-          message.acl = Acl.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.name = reader.string();
-          break;
-        case 4:
-          message.description = reader.string();
-          break;
-        case 5:
-          message.attack = reader.int32();
-          break;
-        case 6:
-          message.defend = reader.int32();
-          break;
-        case 7:
-          message.health = reader.int32();
-          break;
-        case 8:
-          message.armor = reader.int32();
-          break;
-        case 9:
-          message.initiative = reader.int32();
+          message.value = Attribute.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -560,289 +336,79 @@ export const NonplayerCharacter = {
     return message;
   },
 
-  fromJSON(object: any): NonplayerCharacter {
-    const message = { ...baseNonplayerCharacter } as NonplayerCharacter;
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
+  fromJSON(object: any): Character_AttributesEntry {
+    const message = {
+      ...baseCharacter_AttributesEntry,
+    } as Character_AttributesEntry;
+    if (object.key !== undefined && object.key !== null) {
+      message.key = String(object.key);
     } else {
-      message.id = '';
+      message.key = '';
     }
-    if (object.acl !== undefined && object.acl !== null) {
-      message.acl = Acl.fromJSON(object.acl);
+    if (object.value !== undefined && object.value !== null) {
+      message.value = Attribute.fromJSON(object.value);
     } else {
-      message.acl = undefined;
-    }
-    if (object.name !== undefined && object.name !== null) {
-      message.name = String(object.name);
-    } else {
-      message.name = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = String(object.description);
-    } else {
-      message.description = '';
-    }
-    if (object.attack !== undefined && object.attack !== null) {
-      message.attack = Number(object.attack);
-    } else {
-      message.attack = 0;
-    }
-    if (object.defend !== undefined && object.defend !== null) {
-      message.defend = Number(object.defend);
-    } else {
-      message.defend = 0;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = Number(object.health);
-    } else {
-      message.health = 0;
-    }
-    if (object.armor !== undefined && object.armor !== null) {
-      message.armor = Number(object.armor);
-    } else {
-      message.armor = 0;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = Number(object.initiative);
-    } else {
-      message.initiative = 0;
+      message.value = undefined;
     }
     return message;
   },
 
-  toJSON(message: NonplayerCharacter): unknown {
+  toJSON(message: Character_AttributesEntry): unknown {
     const obj: any = {};
-    message.id !== undefined && (obj.id = message.id);
-    message.acl !== undefined &&
-      (obj.acl = message.acl ? Acl.toJSON(message.acl) : undefined);
-    message.name !== undefined && (obj.name = message.name);
-    message.description !== undefined &&
-      (obj.description = message.description);
-    message.attack !== undefined && (obj.attack = message.attack);
-    message.defend !== undefined && (obj.defend = message.defend);
-    message.health !== undefined && (obj.health = message.health);
-    message.armor !== undefined && (obj.armor = message.armor);
-    message.initiative !== undefined && (obj.initiative = message.initiative);
+    message.key !== undefined && (obj.key = message.key);
+    message.value !== undefined &&
+      (obj.value = message.value ? Attribute.toJSON(message.value) : undefined);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<NonplayerCharacter>): NonplayerCharacter {
-    const message = { ...baseNonplayerCharacter } as NonplayerCharacter;
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
+  fromPartial(
+    object: DeepPartial<Character_AttributesEntry>,
+  ): Character_AttributesEntry {
+    const message = {
+      ...baseCharacter_AttributesEntry,
+    } as Character_AttributesEntry;
+    if (object.key !== undefined && object.key !== null) {
+      message.key = object.key;
     } else {
-      message.id = '';
+      message.key = '';
     }
-    if (object.acl !== undefined && object.acl !== null) {
-      message.acl = Acl.fromPartial(object.acl);
+    if (object.value !== undefined && object.value !== null) {
+      message.value = Attribute.fromPartial(object.value);
     } else {
-      message.acl = undefined;
-    }
-    if (object.name !== undefined && object.name !== null) {
-      message.name = object.name;
-    } else {
-      message.name = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = object.description;
-    } else {
-      message.description = '';
-    }
-    if (object.attack !== undefined && object.attack !== null) {
-      message.attack = object.attack;
-    } else {
-      message.attack = 0;
-    }
-    if (object.defend !== undefined && object.defend !== null) {
-      message.defend = object.defend;
-    } else {
-      message.defend = 0;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = object.health;
-    } else {
-      message.health = 0;
-    }
-    if (object.armor !== undefined && object.armor !== null) {
-      message.armor = object.armor;
-    } else {
-      message.armor = 0;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = object.initiative;
-    } else {
-      message.initiative = 0;
+      message.value = undefined;
     }
     return message;
   },
 };
 
-const baseNonplayerStatus: object = { initiative: 0, health: 0 };
+const baseCharacter_SkillsEntry: object = { key: '', value: 0 };
 
-export const NonplayerStatus = {
-  encode(message: NonplayerStatus, writer: Writer = Writer.create()): Writer {
-    if (message.initiative !== 0) {
-      writer.uint32(24).int32(message.initiative);
+export const Character_SkillsEntry = {
+  encode(
+    message: Character_SkillsEntry,
+    writer: Writer = Writer.create(),
+  ): Writer {
+    if (message.key !== '') {
+      writer.uint32(10).string(message.key);
     }
-    if (message.health !== 0) {
-      writer.uint32(16).int32(message.health);
+    if (message.value !== 0) {
+      writer.uint32(16).int32(message.value);
     }
     return writer;
   },
 
-  decode(input: Reader | Uint8Array, length?: number): NonplayerStatus {
+  decode(input: Reader | Uint8Array, length?: number): Character_SkillsEntry {
     const reader = input instanceof Reader ? input : new Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseNonplayerStatus } as NonplayerStatus;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 3:
-          message.initiative = reader.int32();
-          break;
-        case 2:
-          message.health = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): NonplayerStatus {
-    const message = { ...baseNonplayerStatus } as NonplayerStatus;
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = Number(object.initiative);
-    } else {
-      message.initiative = 0;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = Number(object.health);
-    } else {
-      message.health = 0;
-    }
-    return message;
-  },
-
-  toJSON(message: NonplayerStatus): unknown {
-    const obj: any = {};
-    message.initiative !== undefined && (obj.initiative = message.initiative);
-    message.health !== undefined && (obj.health = message.health);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<NonplayerStatus>): NonplayerStatus {
-    const message = { ...baseNonplayerStatus } as NonplayerStatus;
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = object.initiative;
-    } else {
-      message.initiative = 0;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = object.health;
-    } else {
-      message.health = 0;
-    }
-    return message;
-  },
-};
-
-const baseCompanion: object = {
-  id: '',
-  name: '',
-  description: '',
-  attack: 0,
-  defend: 0,
-  initiative: 0,
-  armor: 0,
-};
-
-export const Companion = {
-  encode(message: Companion, writer: Writer = Writer.create()): Writer {
-    if (message.id !== '') {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.acl !== undefined) {
-      Acl.encode(message.acl, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.name !== '') {
-      writer.uint32(26).string(message.name);
-    }
-    if (message.description !== '') {
-      writer.uint32(34).string(message.description);
-    }
-    if (message.loyalty !== undefined) {
-      Attribute.encode(message.loyalty, writer.uint32(42).fork()).ldelim();
-    }
-    if (message.health !== undefined) {
-      Attribute.encode(message.health, writer.uint32(50).fork()).ldelim();
-    }
-    if (message.attack !== 0) {
-      writer.uint32(56).int32(message.attack);
-    }
-    if (message.defend !== 0) {
-      writer.uint32(64).int32(message.defend);
-    }
-    if (message.initiative !== 0) {
-      writer.uint32(72).int32(message.initiative);
-    }
-    if (message.armor !== 0) {
-      writer.uint32(80).int32(message.armor);
-    }
-    if (message.status !== undefined) {
-      CompanionStatus.encode(message.status, writer.uint32(90).fork()).ldelim();
-    }
-    for (const v of message.skills) {
-      Skill.encode(v!, writer.uint32(98).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): Companion {
-    const reader = input instanceof Reader ? input : new Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseCompanion } as Companion;
-    message.skills = [];
+    const message = { ...baseCharacter_SkillsEntry } as Character_SkillsEntry;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.id = reader.string();
+          message.key = reader.string();
           break;
         case 2:
-          message.acl = Acl.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.name = reader.string();
-          break;
-        case 4:
-          message.description = reader.string();
-          break;
-        case 5:
-          message.loyalty = Attribute.decode(reader, reader.uint32());
-          break;
-        case 6:
-          message.health = Attribute.decode(reader, reader.uint32());
-          break;
-        case 7:
-          message.attack = reader.int32();
-          break;
-        case 8:
-          message.defend = reader.int32();
-          break;
-        case 9:
-          message.initiative = reader.int32();
-          break;
-        case 10:
-          message.armor = reader.int32();
-          break;
-        case 11:
-          message.status = CompanionStatus.decode(reader, reader.uint32());
-          break;
-        case 12:
-          message.skills.push(Skill.decode(reader, reader.uint32()));
+          message.value = reader.int32() as any;
           break;
         default:
           reader.skipType(tag & 7);
@@ -852,264 +418,42 @@ export const Companion = {
     return message;
   },
 
-  fromJSON(object: any): Companion {
-    const message = { ...baseCompanion } as Companion;
-    message.skills = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
+  fromJSON(object: any): Character_SkillsEntry {
+    const message = { ...baseCharacter_SkillsEntry } as Character_SkillsEntry;
+    if (object.key !== undefined && object.key !== null) {
+      message.key = String(object.key);
     } else {
-      message.id = '';
+      message.key = '';
     }
-    if (object.acl !== undefined && object.acl !== null) {
-      message.acl = Acl.fromJSON(object.acl);
+    if (object.value !== undefined && object.value !== null) {
+      message.value = skillLevelFromJSON(object.value);
     } else {
-      message.acl = undefined;
-    }
-    if (object.name !== undefined && object.name !== null) {
-      message.name = String(object.name);
-    } else {
-      message.name = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = String(object.description);
-    } else {
-      message.description = '';
-    }
-    if (object.loyalty !== undefined && object.loyalty !== null) {
-      message.loyalty = Attribute.fromJSON(object.loyalty);
-    } else {
-      message.loyalty = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = Attribute.fromJSON(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.attack !== undefined && object.attack !== null) {
-      message.attack = Number(object.attack);
-    } else {
-      message.attack = 0;
-    }
-    if (object.defend !== undefined && object.defend !== null) {
-      message.defend = Number(object.defend);
-    } else {
-      message.defend = 0;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = Number(object.initiative);
-    } else {
-      message.initiative = 0;
-    }
-    if (object.armor !== undefined && object.armor !== null) {
-      message.armor = Number(object.armor);
-    } else {
-      message.armor = 0;
-    }
-    if (object.status !== undefined && object.status !== null) {
-      message.status = CompanionStatus.fromJSON(object.status);
-    } else {
-      message.status = undefined;
-    }
-    if (object.skills !== undefined && object.skills !== null) {
-      for (const e of object.skills) {
-        message.skills.push(Skill.fromJSON(e));
-      }
+      message.value = 0;
     }
     return message;
   },
 
-  toJSON(message: Companion): unknown {
+  toJSON(message: Character_SkillsEntry): unknown {
     const obj: any = {};
-    message.id !== undefined && (obj.id = message.id);
-    message.acl !== undefined &&
-      (obj.acl = message.acl ? Acl.toJSON(message.acl) : undefined);
-    message.name !== undefined && (obj.name = message.name);
-    message.description !== undefined &&
-      (obj.description = message.description);
-    message.loyalty !== undefined &&
-      (obj.loyalty = message.loyalty
-        ? Attribute.toJSON(message.loyalty)
-        : undefined);
-    message.health !== undefined &&
-      (obj.health = message.health
-        ? Attribute.toJSON(message.health)
-        : undefined);
-    message.attack !== undefined && (obj.attack = message.attack);
-    message.defend !== undefined && (obj.defend = message.defend);
-    message.initiative !== undefined && (obj.initiative = message.initiative);
-    message.armor !== undefined && (obj.armor = message.armor);
-    message.status !== undefined &&
-      (obj.status = message.status
-        ? CompanionStatus.toJSON(message.status)
-        : undefined);
-    if (message.skills) {
-      obj.skills = message.skills.map((e) => (e ? Skill.toJSON(e) : undefined));
-    } else {
-      obj.skills = [];
-    }
+    message.key !== undefined && (obj.key = message.key);
+    message.value !== undefined &&
+      (obj.value = skillLevelToJSON(message.value));
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Companion>): Companion {
-    const message = { ...baseCompanion } as Companion;
-    message.skills = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
+  fromPartial(
+    object: DeepPartial<Character_SkillsEntry>,
+  ): Character_SkillsEntry {
+    const message = { ...baseCharacter_SkillsEntry } as Character_SkillsEntry;
+    if (object.key !== undefined && object.key !== null) {
+      message.key = object.key;
     } else {
-      message.id = '';
+      message.key = '';
     }
-    if (object.acl !== undefined && object.acl !== null) {
-      message.acl = Acl.fromPartial(object.acl);
+    if (object.value !== undefined && object.value !== null) {
+      message.value = object.value;
     } else {
-      message.acl = undefined;
-    }
-    if (object.name !== undefined && object.name !== null) {
-      message.name = object.name;
-    } else {
-      message.name = '';
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = object.description;
-    } else {
-      message.description = '';
-    }
-    if (object.loyalty !== undefined && object.loyalty !== null) {
-      message.loyalty = Attribute.fromPartial(object.loyalty);
-    } else {
-      message.loyalty = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = Attribute.fromPartial(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.attack !== undefined && object.attack !== null) {
-      message.attack = object.attack;
-    } else {
-      message.attack = 0;
-    }
-    if (object.defend !== undefined && object.defend !== null) {
-      message.defend = object.defend;
-    } else {
-      message.defend = 0;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = object.initiative;
-    } else {
-      message.initiative = 0;
-    }
-    if (object.armor !== undefined && object.armor !== null) {
-      message.armor = object.armor;
-    } else {
-      message.armor = 0;
-    }
-    if (object.status !== undefined && object.status !== null) {
-      message.status = CompanionStatus.fromPartial(object.status);
-    } else {
-      message.status = undefined;
-    }
-    if (object.skills !== undefined && object.skills !== null) {
-      for (const e of object.skills) {
-        message.skills.push(Skill.fromPartial(e));
-      }
-    }
-    return message;
-  },
-};
-
-const baseCompanionStatus: object = { initiative: 0 };
-
-export const CompanionStatus = {
-  encode(message: CompanionStatus, writer: Writer = Writer.create()): Writer {
-    if (message.loyalty !== undefined) {
-      AttributeStatus.encode(
-        message.loyalty,
-        writer.uint32(10).fork(),
-      ).ldelim();
-    }
-    if (message.health !== undefined) {
-      AttributeStatus.encode(message.health, writer.uint32(18).fork()).ldelim();
-    }
-    if (message.initiative !== 0) {
-      writer.uint32(24).int32(message.initiative);
-    }
-    return writer;
-  },
-
-  decode(input: Reader | Uint8Array, length?: number): CompanionStatus {
-    const reader = input instanceof Reader ? input : new Reader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseCompanionStatus } as CompanionStatus;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.loyalty = AttributeStatus.decode(reader, reader.uint32());
-          break;
-        case 2:
-          message.health = AttributeStatus.decode(reader, reader.uint32());
-          break;
-        case 3:
-          message.initiative = reader.int32();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-
-  fromJSON(object: any): CompanionStatus {
-    const message = { ...baseCompanionStatus } as CompanionStatus;
-    if (object.loyalty !== undefined && object.loyalty !== null) {
-      message.loyalty = AttributeStatus.fromJSON(object.loyalty);
-    } else {
-      message.loyalty = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = AttributeStatus.fromJSON(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = Number(object.initiative);
-    } else {
-      message.initiative = 0;
-    }
-    return message;
-  },
-
-  toJSON(message: CompanionStatus): unknown {
-    const obj: any = {};
-    message.loyalty !== undefined &&
-      (obj.loyalty = message.loyalty
-        ? AttributeStatus.toJSON(message.loyalty)
-        : undefined);
-    message.health !== undefined &&
-      (obj.health = message.health
-        ? AttributeStatus.toJSON(message.health)
-        : undefined);
-    message.initiative !== undefined && (obj.initiative = message.initiative);
-    return obj;
-  },
-
-  fromPartial(object: DeepPartial<CompanionStatus>): CompanionStatus {
-    const message = { ...baseCompanionStatus } as CompanionStatus;
-    if (object.loyalty !== undefined && object.loyalty !== null) {
-      message.loyalty = AttributeStatus.fromPartial(object.loyalty);
-    } else {
-      message.loyalty = undefined;
-    }
-    if (object.health !== undefined && object.health !== null) {
-      message.health = AttributeStatus.fromPartial(object.health);
-    } else {
-      message.health = undefined;
-    }
-    if (object.initiative !== undefined && object.initiative !== null) {
-      message.initiative = object.initiative;
-    } else {
-      message.initiative = 0;
+      message.value = 0;
     }
     return message;
   },

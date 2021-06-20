@@ -4,40 +4,23 @@ package framesystem;
 import "attribute.proto";
 import "acl.proto";
 import "skill.proto";
+import "ability.proto";
 
-message PlayerCharacter {
-  string id = 1;
-  Acl acl = 2;
-  string name = 3;
-  string description = 4;
-  map<string, Attribute> attributes = 5;
-  int32 initiative = 6;
-  repeated Skill skills = 7;
+enum CharacterType {
+  CHARACTERTYPE_UNKNOWN = 0;
+  CHARACTERTYPE_PLAYER = 1;
+  CHARACTERTYPE_NONPLAYER = 2;
+  CHARACTERTYPE_COMPANION = 3;
 }
 
-message NonplayerCharacter {
+message Character {
   string id = 1;
-  Acl acl = 2;
+  CharacterType type = 2;
   string name = 3;
   string description = 4;
-  int32 attack = 5;
-  int32 defend = 6;
-  int32 health = 7;
-  int32 armor = 8;
-  int32 initiative = 9;
-  repeated Ability abilities = 10;
+  Acl acl = 5;
+  map<string, Attribute> attributes = 6;
+  map<string, SkillLevel> skills = 7;
+  repeated Ability abilities = 8;
 }
 
-message Companion {
-  string id = 1;
-  Acl acl = 2;
-  string name = 3;
-  string description = 4;
-  map<string, Attribute> attributes = 5;
-  int32 initiative = 6;
-  int32 attack = 7;
-  int32 defend = 8;
-  int32 initiative = 9;
-  int32 armor = 10;
-  repeated Skill skills = 11;
-}
