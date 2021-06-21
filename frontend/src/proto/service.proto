@@ -1,5 +1,12 @@
 syntax = "proto3";
 package framesystem;
+
+import "acl.proto";
+import "campaign.proto";
+import "character.proto";
+import "user.proto";
+import "google/protobuf/field_mask.proto";
+
 service FramesystemService {
   rpc CreateCampaign(CreateCampaignRequest) returns (CreateCampaignResponse) {}
   rpc ReadCampaign(ReadCampaignRequest) returns (stream ReadCampaignResponse) {}
@@ -12,33 +19,96 @@ service FramesystemService {
   rpc UpdateCharacter(UpdateCharacterRequest) returns (UpdateCharacterResponse) {}
   rpc DeleteCharacter(DeleteCharacterRequest) returns (DeleteCharacterResponse) {}
   rpc ListCharacters(ListCharactersRequest) returns (ListCharactersResponse) {}
+
+  rpc ReadUser(ReadUserRequest) returns (ReadUserResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
 }
 
-message CampaignId {
+message CreateCampaignRequest {
+  string name = 1;
+}
+
+message CreateCampaignResponse {
+  Campaign created = 1;
+}
+
+message ReadCampaignRequest {
   string id = 1;
-  string name = 2;
 }
 
-message CreateCampaignRequest {}
-message CreateCampaignResponse {}
-message ReadCampaignRequest {}
-message ReadCampaignResponse {}
-message UpdateCampaignRequest {}
+message ReadCampaignResponse {
+  Campaign campaign = 1;
+}
+
+message UpdateCampaignRequest {
+  Campaign campaign = 1;
+  google.protobuf.FieldMask field_mask = 2;
+}
+
 message UpdateCampaignResponse {}
-message DeleteCampaignRequest {}
-message DeleteCampaignResponse {}
-message ListCampaignsRequest {}
-message ListCampaignsResponse {
-  repeated CampaignId campaign_id = 1;
+
+message DeleteCampaignRequest {
+  string id = 1;
 }
 
-message CreateCharacterRequest {}
-message CreateCharacterResponse {}
-message ReadCharacterRequest {}
-message ReadCharacterResponse {}
-message UpdateCharacterRequest {}
+message DeleteCampaignResponse {}
+
+message ListCampaignsRequest {
+  AclLevel min_level = 1;
+}
+
+message ListCampaignsResponse {
+  repeated Campaign campaigns = 1;
+}
+
+message CreateCharacterRequest {
+  string name = 1;
+}
+
+message CreateCharacterResponse {
+  Character character = 1;
+}
+
+message ReadCharacterRequest {
+  string id = 1;
+}
+
+message ReadCharacterResponse {
+  Character character = 1;
+}
+
+message UpdateCharacterRequest {
+  Character character = 1;
+  google.protobuf.FieldMask field_mask = 2;
+}
+
 message UpdateCharacterResponse {}
-message DeleteCharacterRequest {}
+
+message DeleteCharacterRequest {
+  string id = 1;
+}
+
 message DeleteCharacterResponse {}
-message ListCharactersRequest {}
-message ListCharactersResponse {}
+
+message ListCharactersRequest {
+  AclLevel min_level = 1;
+}
+
+message ListCharactersResponse {
+  repeated Character characters = 1;
+}
+
+message ReadUserRequest {
+  string id = 1;
+}
+
+message ReadUserResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  User user = 1;
+  google.protobuf.FieldMask field_mask = 2;
+}
+
+message UpdateUserResponse {}

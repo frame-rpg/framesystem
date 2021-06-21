@@ -9,7 +9,12 @@ import {
   ToProtobufJSONOptions
 } from '@ngx-grpc/common';
 import { BinaryReader, BinaryWriter, ByteSource } from 'google-protobuf';
-
+export enum AclLevel {
+  ACL_LEVEL_UNKNOWN = 0,
+  ACL_LEVEL_VISIT = 1,
+  ACL_LEVEL_COLLABORATE = 2,
+  ACL_LEVEL_AUTHOR = 3
+}
 /**
  * Message implementation for framesystem.Acl
  */

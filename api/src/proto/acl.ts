@@ -4,6 +4,50 @@ import * as Long from 'long';
 
 export const protobufPackage = 'framesystem';
 
+export enum AclLevel {
+  ACL_LEVEL_UNKNOWN = 0,
+  ACL_LEVEL_VISIT = 1,
+  ACL_LEVEL_COLLABORATE = 2,
+  ACL_LEVEL_AUTHOR = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function aclLevelFromJSON(object: any): AclLevel {
+  switch (object) {
+    case 0:
+    case 'ACL_LEVEL_UNKNOWN':
+      return AclLevel.ACL_LEVEL_UNKNOWN;
+    case 1:
+    case 'ACL_LEVEL_VISIT':
+      return AclLevel.ACL_LEVEL_VISIT;
+    case 2:
+    case 'ACL_LEVEL_COLLABORATE':
+      return AclLevel.ACL_LEVEL_COLLABORATE;
+    case 3:
+    case 'ACL_LEVEL_AUTHOR':
+      return AclLevel.ACL_LEVEL_AUTHOR;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return AclLevel.UNRECOGNIZED;
+  }
+}
+
+export function aclLevelToJSON(object: AclLevel): string {
+  switch (object) {
+    case AclLevel.ACL_LEVEL_UNKNOWN:
+      return 'ACL_LEVEL_UNKNOWN';
+    case AclLevel.ACL_LEVEL_VISIT:
+      return 'ACL_LEVEL_VISIT';
+    case AclLevel.ACL_LEVEL_COLLABORATE:
+      return 'ACL_LEVEL_COLLABORATE';
+    case AclLevel.ACL_LEVEL_AUTHOR:
+      return 'ACL_LEVEL_AUTHOR';
+    default:
+      return 'UNKNOWN';
+  }
+}
+
 export interface Acl {
   authors: string[];
   collaborators: string[];

@@ -19,6 +19,14 @@ import {
 } from '@ngx-grpc/core';
 import { Observable } from 'rxjs';
 import * as thisProto from './service.pb';
+import * as framesystem000 from './acl.pb';
+import * as framesystem001 from './skill.pb';
+import * as framesystem002 from './attribute.pb';
+import * as framesystem003 from './ability.pb';
+import * as framesystem004 from './campaign.pb';
+import * as framesystem005 from './character.pb';
+import * as framesystem006 from './user.pb';
+import * as googleProtobuf007 from '@ngx-grpc/well-known-types';
 import { GRPC_FRAMESYSTEM_SERVICE_CLIENT_SETTINGS } from './service.pbconf';
 /**
  * Service client implementation for framesystem.FramesystemService
@@ -242,6 +250,48 @@ export class FramesystemServiceClient {
         requestClass: thisProto.ListCharactersRequest,
         responseClass: thisProto.ListCharactersResponse
       });
+    },
+    /**
+     * Unary RPC for /framesystem.FramesystemService/ReadUser
+     *
+     * @param requestMessage Request message
+     * @param requestMetadata Request metadata
+     * @returns Observable<GrpcEvent<thisProto.ReadUserResponse>>
+     */
+    readUser: (
+      requestData: thisProto.ReadUserRequest,
+      requestMetadata = new GrpcMetadata()
+    ): Observable<GrpcEvent<thisProto.ReadUserResponse>> => {
+      return this.handler.handle({
+        type: GrpcCallType.unary,
+        client: this.client,
+        path: '/framesystem.FramesystemService/ReadUser',
+        requestData,
+        requestMetadata,
+        requestClass: thisProto.ReadUserRequest,
+        responseClass: thisProto.ReadUserResponse
+      });
+    },
+    /**
+     * Unary RPC for /framesystem.FramesystemService/UpdateUser
+     *
+     * @param requestMessage Request message
+     * @param requestMetadata Request metadata
+     * @returns Observable<GrpcEvent<thisProto.UpdateUserResponse>>
+     */
+    updateUser: (
+      requestData: thisProto.UpdateUserRequest,
+      requestMetadata = new GrpcMetadata()
+    ): Observable<GrpcEvent<thisProto.UpdateUserResponse>> => {
+      return this.handler.handle({
+        type: GrpcCallType.unary,
+        client: this.client,
+        path: '/framesystem.FramesystemService/UpdateUser',
+        requestData,
+        requestMetadata,
+        requestClass: thisProto.UpdateUserRequest,
+        responseClass: thisProto.UpdateUserResponse
+      });
     }
   };
 
@@ -413,6 +463,38 @@ export class FramesystemServiceClient {
   ): Observable<thisProto.ListCharactersResponse> {
     return this.$raw
       .listCharacters(requestData, requestMetadata)
+      .pipe(throwStatusErrors(), takeMessages());
+  }
+
+  /**
+   * Unary RPC for /framesystem.FramesystemService/ReadUser
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.ReadUserResponse>
+   */
+  readUser(
+    requestData: thisProto.ReadUserRequest,
+    requestMetadata = new GrpcMetadata()
+  ): Observable<thisProto.ReadUserResponse> {
+    return this.$raw
+      .readUser(requestData, requestMetadata)
+      .pipe(throwStatusErrors(), takeMessages());
+  }
+
+  /**
+   * Unary RPC for /framesystem.FramesystemService/UpdateUser
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.UpdateUserResponse>
+   */
+  updateUser(
+    requestData: thisProto.UpdateUserRequest,
+    requestMetadata = new GrpcMetadata()
+  ): Observable<thisProto.UpdateUserResponse> {
+    return this.$raw
+      .updateUser(requestData, requestMetadata)
       .pipe(throwStatusErrors(), takeMessages());
   }
 }
