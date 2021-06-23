@@ -11,7 +11,6 @@ export enum SkillLevel {
   LEVEL_PROFICIENT = 3,
   LEVEL_TRAINED = 4,
   LEVEL_EXPERT = 5,
-  UNRECOGNIZED = -1,
 }
 
 export function skillLevelFromJSON(object: any): SkillLevel {
@@ -34,10 +33,10 @@ export function skillLevelFromJSON(object: any): SkillLevel {
     case 5:
     case 'LEVEL_EXPERT':
       return SkillLevel.LEVEL_EXPERT;
-    case -1:
-    case 'UNRECOGNIZED':
     default:
-      return SkillLevel.UNRECOGNIZED;
+      throw new globalThis.Error(
+        'Unrecognized enum value ' + object + ' for enum SkillLevel',
+      );
   }
 }
 
@@ -66,7 +65,6 @@ export enum SkillType {
   SKILLTYPE_ATTACK = 2,
   SKILLTYPE_INITIATIVE = 3,
   SKILLTYPE_NONCOMBAT = 4,
-  UNRECOGNIZED = -1,
 }
 
 export function skillTypeFromJSON(object: any): SkillType {
@@ -86,10 +84,10 @@ export function skillTypeFromJSON(object: any): SkillType {
     case 4:
     case 'SKILLTYPE_NONCOMBAT':
       return SkillType.SKILLTYPE_NONCOMBAT;
-    case -1:
-    case 'UNRECOGNIZED':
     default:
-      return SkillType.UNRECOGNIZED;
+      throw new globalThis.Error(
+        'Unrecognized enum value ' + object + ' for enum SkillType',
+      );
   }
 }
 
@@ -300,7 +298,24 @@ export const Skill = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | undefined;
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  throw 'Unable to locate global object';
+})();
+
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>

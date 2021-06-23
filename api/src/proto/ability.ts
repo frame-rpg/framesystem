@@ -30,7 +30,6 @@ export enum Cost_CostType {
   COST_DAMAGE = 3,
   COST_DEPLETION = 4,
   COST_WOUND = 5,
-  UNRECOGNIZED = -1,
 }
 
 export function cost_CostTypeFromJSON(object: any): Cost_CostType {
@@ -53,10 +52,10 @@ export function cost_CostTypeFromJSON(object: any): Cost_CostType {
     case 5:
     case 'COST_WOUND':
       return Cost_CostType.COST_WOUND;
-    case -1:
-    case 'UNRECOGNIZED':
     default:
-      return Cost_CostType.UNRECOGNIZED;
+      throw new globalThis.Error(
+        'Unrecognized enum value ' + object + ' for enum Cost_CostType',
+      );
   }
 }
 
@@ -615,7 +614,24 @@ export const Ability = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | undefined;
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  throw 'Unable to locate global object';
+})();
+
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>

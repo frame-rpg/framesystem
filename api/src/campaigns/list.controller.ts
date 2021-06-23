@@ -12,8 +12,8 @@ export class ListController {
     metadata: Metadata,
     call: ServerUnaryCall<any>,
   ): ListCampaignsResponse {
-    return ListCampaignsResponse.fromJSON({
-      campaignId: [{ id: 1, name: 'potato' }],
+    return ListCampaignsResponse.fromPartial({
+      campaigns: [{ id: '1' }],
     });
   }
 }

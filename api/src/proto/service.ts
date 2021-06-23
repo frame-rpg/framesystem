@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { util, configure, Reader, Writer } from 'protobufjs/minimal';
+import { util, configure, Writer, Reader } from 'protobufjs/minimal';
 import * as Long from 'long';
 import { AclLevel, aclLevelFromJSON, aclLevelToJSON } from './acl';
 import { Observable } from 'rxjs';
@@ -1559,175 +1559,14 @@ export interface FramesystemService {
   UpdateUser(request: UpdateUserRequest): Promise<UpdateUserResponse>;
 }
 
-export class FramesystemServiceClientImpl implements FramesystemService {
-  private readonly rpc: Rpc;
-  constructor(rpc: Rpc) {
-    this.rpc = rpc;
-  }
-  CreateCampaign(
-    request: CreateCampaignRequest,
-  ): Promise<CreateCampaignResponse> {
-    const data = CreateCampaignRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'CreateCampaign',
-      data,
-    );
-    return promise.then((data) =>
-      CreateCampaignResponse.decode(new Reader(data)),
-    );
-  }
-
-  ReadCampaign(request: ReadCampaignRequest): Promise<ReadCampaignResponse> {
-    const data = ReadCampaignRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'ReadCampaign',
-      data,
-    );
-    return promise.then((data) =>
-      ReadCampaignResponse.decode(new Reader(data)),
-    );
-  }
-
-  UpdateCampaign(
-    request: UpdateCampaignRequest,
-  ): Promise<UpdateCampaignResponse> {
-    const data = UpdateCampaignRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'UpdateCampaign',
-      data,
-    );
-    return promise.then((data) =>
-      UpdateCampaignResponse.decode(new Reader(data)),
-    );
-  }
-
-  DeleteCampaign(
-    request: DeleteCampaignRequest,
-  ): Promise<DeleteCampaignResponse> {
-    const data = DeleteCampaignRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'DeleteCampaign',
-      data,
-    );
-    return promise.then((data) =>
-      DeleteCampaignResponse.decode(new Reader(data)),
-    );
-  }
-
-  ListCampaigns(request: ListCampaignsRequest): Promise<ListCampaignsResponse> {
-    const data = ListCampaignsRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'ListCampaigns',
-      data,
-    );
-    return promise.then((data) =>
-      ListCampaignsResponse.decode(new Reader(data)),
-    );
-  }
-
-  CreateCharacter(
-    request: CreateCharacterRequest,
-  ): Promise<CreateCharacterResponse> {
-    const data = CreateCharacterRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'CreateCharacter',
-      data,
-    );
-    return promise.then((data) =>
-      CreateCharacterResponse.decode(new Reader(data)),
-    );
-  }
-
-  ReadCharacter(request: ReadCharacterRequest): Promise<ReadCharacterResponse> {
-    const data = ReadCharacterRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'ReadCharacter',
-      data,
-    );
-    return promise.then((data) =>
-      ReadCharacterResponse.decode(new Reader(data)),
-    );
-  }
-
-  UpdateCharacter(
-    request: UpdateCharacterRequest,
-  ): Promise<UpdateCharacterResponse> {
-    const data = UpdateCharacterRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'UpdateCharacter',
-      data,
-    );
-    return promise.then((data) =>
-      UpdateCharacterResponse.decode(new Reader(data)),
-    );
-  }
-
-  DeleteCharacter(
-    request: DeleteCharacterRequest,
-  ): Promise<DeleteCharacterResponse> {
-    const data = DeleteCharacterRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'DeleteCharacter',
-      data,
-    );
-    return promise.then((data) =>
-      DeleteCharacterResponse.decode(new Reader(data)),
-    );
-  }
-
-  ListCharacters(
-    request: ListCharactersRequest,
-  ): Promise<ListCharactersResponse> {
-    const data = ListCharactersRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'ListCharacters',
-      data,
-    );
-    return promise.then((data) =>
-      ListCharactersResponse.decode(new Reader(data)),
-    );
-  }
-
-  ReadUser(request: ReadUserRequest): Promise<ReadUserResponse> {
-    const data = ReadUserRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'ReadUser',
-      data,
-    );
-    return promise.then((data) => ReadUserResponse.decode(new Reader(data)));
-  }
-
-  UpdateUser(request: UpdateUserRequest): Promise<UpdateUserResponse> {
-    const data = UpdateUserRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      'framesystem.FramesystemService',
-      'UpdateUser',
-      data,
-    );
-    return promise.then((data) => UpdateUserResponse.decode(new Reader(data)));
-  }
-}
-
-interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: Uint8Array,
-  ): Promise<Uint8Array>;
-}
-
-type Builtin = Date | Function | Uint8Array | string | number | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>
