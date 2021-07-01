@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 
 const app = admin.initializeApp({
   credential: admin.credential.applicationDefault(),
-  databaseURL: "https://framesystem-v2.firebaseio.com",
+  databaseURL: "https://framesystem-v2-default-rtdb.firebaseio.com",
   projectId: "framesystem-v2",
 });
 
@@ -31,11 +31,23 @@ const users: { claims: any; user: admin.auth.CreateRequest }[] = [
   },
 ];
 
-Promise.all(
-  users.map(({ user, claims }) =>
-    app
-      .auth()
-      .createUser(user)
-      .then((record) => app.auth().setCustomUserClaims(record.uid, claims))
-  )
-);
+const campaign = {
+  id: "seed",
+  name: "Seed Campaign",
+  description: "some text here",
+};
+
+app
+  .firestore()
+  .doc("/campaigns/seed")
+  .set(campaign)
+  .then(() =>
+    Promise.all(
+      users.map(({ user, claims }) =>
+        app
+          .auth()
+          .createUser(user)
+          .then((record) => app.auth().setCustomUserClaims(record.uid, claims))
+      )
+    )
+  );
