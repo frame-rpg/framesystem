@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import admin from 'firebase-admin';
 
 @Injectable()
@@ -22,5 +23,16 @@ export class FirestoreService {
       .collection(path)
       .get()
       .then((list) => list.docs.map((doc) => doc.data() as T));
+  }
+
+  subscribe<T>(path: string): Observable<T> {
+    return new Observable((subscriber) => {
+      this.firestore()
+        .doc(path)
+        .onSnapshot(
+          (snapshot) => subscriber.next(snapshot.data() as T),
+          (err) => subscriber.error(err),
+        );
+    });
   }
 }
