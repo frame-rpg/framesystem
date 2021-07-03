@@ -1,5 +1,6 @@
 import { FirebaseUIModule, firebase, firebaseui } from 'firebaseui-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { GRPC_INTERCEPTORS, GrpcCoreModule } from '@ngx-grpc/core';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -7,7 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { FirebaseModule } from './config/firebase.module';
 import { FramesystemCommonModule } from './common/common.module';
-import { GrpcCoreModule } from '@ngx-grpc/core';
+import { GrpcAuthInterceptor } from './grpc-auth.interceptor';
 import { ImprobableEngGrpcWebClientModule } from '@ngx-grpc/improbable-eng-grpc-web-client';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -56,7 +57,13 @@ const firebaseUiAuthConfig: any = {
     FramesystemCommonModule,
     MatDialogModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: GRPC_INTERCEPTORS,
+      useClass: GrpcAuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

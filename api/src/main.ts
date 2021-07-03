@@ -1,6 +1,7 @@
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { AppModule } from './app.module';
+import { AuthGuard } from './auth.guard';
 import { NestFactory } from '@nestjs/core';
 import { env } from 'process';
 import { join } from 'path';
@@ -19,6 +20,7 @@ async function bootstrap() {
       },
     },
   );
+  app.useGlobalGuards(new AuthGuard());
   await app.listenAsync();
 }
 bootstrap();

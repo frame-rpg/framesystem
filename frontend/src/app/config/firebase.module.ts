@@ -19,7 +19,7 @@ import { environment } from '../../environments/environment';
       useValue: environment.production
         ? undefined
         : {
-            host: 'localhost:8080',
+            host: 'firebase:8081',
             ssl: false
           }
     },

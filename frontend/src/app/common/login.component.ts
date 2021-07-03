@@ -39,7 +39,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
         this.matDialogRef.close();
       }
       this.snackBar.open('Successfully logged in.');
-      this.router.navigate(['users']);
+      this.router.navigate(['me']);
     });
     this.login!.signInFailureCallback.pipe(
       takeUntil(this.destroying)
