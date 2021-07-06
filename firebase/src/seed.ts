@@ -47,7 +47,30 @@ app
         app
           .auth()
           .createUser(user)
-          .then((record) => app.auth().setCustomUserClaims(record.uid, claims))
+          .then((record) =>
+            app
+              .auth()
+              .setCustomUserClaims(record.uid, claims)
+              .then(() => {
+                const access = {
+                  read: true,
+                  write: false,
+                };
+                if (user.displayName === "Test GM") {
+                  access.write = true;
+                }
+                return app
+                  .firestore()
+                  .doc(`/campaigns/seed/acl/${record.uid}`)
+                  .set(access);
+              })
+          )
       )
     )
-  );
+  )
+  .then(() => {
+    return app
+      .firestore()
+      .doc("/campaigns/seed/acl/public")
+      .set({ read: true, write: false });
+  });
