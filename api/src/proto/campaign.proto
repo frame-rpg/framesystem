@@ -1,0 +1,15 @@
+syntax = "proto3";
+package framesystem;
+
+import "acl.proto";
+import "skill.proto";
+
+message Campaign {
+  string id = 1;
+  Acl acl = 2;
+  string name = 3;
+  string description = 4;
+  map<string, Skill> skills = 5;
+  repeated string characters = 6;
+}
+

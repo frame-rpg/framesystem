@@ -1,0 +1,31 @@
+syntax = "proto3";
+package framesystem;
+
+import "attribute.proto";
+
+enum SkillLevel {
+  LEVEL_UNKNOWN = 0;
+  LEVEL_INEPT = 1;
+  LEVEL_UNSKILLED = 2;
+  LEVEL_PROFICIENT = 3;
+  LEVEL_TRAINED = 4;
+  LEVEL_EXPERT = 5;
+}
+
+enum SkillType {
+  SKILLTYPE_UNKNOWN = 0;
+  SKILLTYPE_DEFENSE = 1;
+  SKILLTYPE_ATTACK = 2;
+  SKILLTYPE_INITIATIVE = 3;
+  SKILLTYPE_NONCOMBAT = 4;
+}
+
+message Skill {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  SkillType type = 4;
+  string category = 5;
+  repeated string tag = 6;
+  repeated string attributes = 7;
+}

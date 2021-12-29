@@ -1,0 +1,26 @@
+syntax = "proto3";
+package framesystem;
+
+import "attribute.proto";
+import "acl.proto";
+import "skill.proto";
+import "ability.proto";
+
+enum CharacterType {
+  CHARACTERTYPE_UNKNOWN = 0;
+  CHARACTERTYPE_PLAYER = 1;
+  CHARACTERTYPE_NONPLAYER = 2;
+  CHARACTERTYPE_COMPANION = 3;
+}
+
+message Character {
+  string id = 1;
+  CharacterType type = 2;
+  string name = 3;
+  string description = 4;
+  Acl acl = 5;
+  map<string, Attribute> attributes = 6;
+  map<string, SkillLevel> skills = 7;
+  repeated Ability abilities = 8;
+}
+

@@ -1,0 +1,15 @@
+syntax = "proto3";
+package framesystem;
+
+enum AclLevel {
+  ACL_LEVEL_UNKNOWN = 0;
+  ACL_LEVEL_VISIT = 1;
+  ACL_LEVEL_COLLABORATE = 2;
+  ACL_LEVEL_AUTHOR = 3;
+}
+
+message Acl {
+  repeated string authors = 1;
+  repeated string collaborators = 2;
+  repeated string visitors = 3;
+}

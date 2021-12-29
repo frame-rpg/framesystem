@@ -1,6 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /campaigns/{campaignId} {
+      allow read: if get(/databases/$(database)/documents/campaigns/$(campaignId)/acl/$(req.auth.uid)).read == true;
+      allow write: if get(/databases/$(database)/documents/campaigns/$(campaignId)/acl/$(req.auth.uid)).read == true;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

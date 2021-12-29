@@ -23,4 +23,5 @@ RUN npm install
 copy . .
 copy --from=development /usr/src/app/dist ./dist
 EXPOSE 9090
+RUN npm rebuild
 cmd ["node", "dist/main"]

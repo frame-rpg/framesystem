@@ -1,0 +1,38 @@
+syntax = "proto3";
+package framesystem;
+
+message PoolCost {}
+message InitiativeCost {}
+message DamageCost {}
+message DepletionCost {}
+message WoundCost {}
+
+
+message Cost {
+  enum CostType {
+    COST_UNKNOWN = 0;
+    COST_POOL = 1;
+    COST_INITIATIVE = 2;
+    COST_DAMAGE = 3;
+    COST_DEPLETION = 4;
+    COST_WOUND = 5;
+  }
+  oneof cost {
+    PoolCost pool = 1;
+    InitiativeCost initiative = 2;
+    DamageCost damage = 3;
+    DepletionCost depletion = 4;
+    WoundCost wound = 5;
+  }
+  CostType type = 6;
+}
+
+message Effect {}
+
+message Ability {
+  string id = 1;
+  string name  = 2;
+  string description = 3;
+  repeated Cost cost = 4;
+  repeated Effect effect = 5;
+}
